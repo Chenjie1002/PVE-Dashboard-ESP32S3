@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>纯黑白极简仪器仪表风 (Monochrome Telemetry) - 320x240</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+  body {
+    background-color: #121214;
+    color: #e0e0e0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+    gap: 20px;
+  }
+  
+  .preview-desc {
+    max-width: 680px;
+    text-align: center;
+    line-height: 1.6;
+    color: #9aa0a6;
+    font-size: 14px;
+  }
+  .preview-desc h2 {
+    color: #ffffff;
+    font-size: 20px;
+    margin-bottom: 6px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  /* 模拟 320x240 真实物理屏幕 */
+  .screen-frame {
+    width: 320px;
+    height: 240px;
+    background: #000000;
+    border: 3px solid #333338;
+    border-radius: 6px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.08);
+    position: relative;
+    overflow: hidden;
+    font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    color: #ffffff;
+  }
+
+  /* 纯黑白仪表风格核心设计 */
+  .mono-container {
+    width: 320px;
+    height: 240px;
+    background: #000000;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* 顶部顶栏 */
+  .mono-header {
+    height: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ffffff;
+    padding-bottom: 2px;
+  }
+  .mono-title {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .mono-badge {
+    background: #ffffff;
+    color: #000000;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 0 4px;
+    height: 14px;
+    line-height: 14px;
+    border-radius: 1px;
+    letter-spacing: 0.5px;
+  }
+  .mono-uptime {
+    font-size: 11px;
+    font-family: monospace;
+    font-weight: 600;
+    color: #a0a0a0;
+  }
+
+  /* 中间主体区: 双栏仪表 */
+  .mono-body {
+    display: flex;
+    gap: 6px;
+    height: 174px;
+  }
+
+  /* 左侧：网络监测仪表卡 */
+  .mono-card-net {
+    flex: 1;
+    border: 1px solid #444444;
+    padding: 6px 7px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #000000;
+  }
+  .mono-card-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #888888;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #222222;
+    padding-bottom: 3px;
+  }
+  .mono-net-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .mono-net-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px dashed #222222;
+    padding-bottom: 3px;
+  }
+  .mono-row-left {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .mono-row-left .tag {
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+  .mono-row-left .unit {
+    color: #777777;
+    font-size: 9px;
+    font-family: monospace;
+  }
+  .mono-row-val {
+    font-size: 22px;
+    font-weight: 900;
+    font-family: "SF Pro Text", -apple-system, sans-serif;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  /* 紧凑精致示波器网速线 (占比压缩至 60px) */
+  .mono-wave-box {
+    height: 60px;
+    width: 100%;
+    margin-top: 8px;
+    border: 1px solid #222222;
+    position: relative;
+    background: #030303;
+  }
+  .mono-wave-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* 右侧：系统指标柱状仪表卡 */
+  .mono-card-sys {
+    width: 142px;
+    border: 1px solid #444444;
+    padding: 6px 7px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #000000;
+  }
+  .mono-meter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .mono-meter-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .mono-meter-label {
+    color: #ffffff;
+    letter-spacing: 0.5px;
+  }
+  .mono-meter-val {
+    color: #ffffff;
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .mono-meter-temp {
+    color: #888888;
+    font-size: 9px;
+    margin-right: 4px;
+  }
+  
+  /* 纯黑白仪表高对比度槽与标尺 */
+  .mono-bar-track {
+    width: 100%;
+    height: 8px;
+    background: #181818;
+    border: 1px solid #333333;
+    position: relative;
+    overflow: hidden;
+  }
+  .mono-bar-fill {
+    height: 100%;
+    background: #ffffff;
+  }
+
+  /* 底部状态栏 */
+  .mono-footer {
+    height: 22px;
+    border-top: 1px solid #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2px;
+    font-family: monospace;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .mono-ip {
+    color: #cccccc;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .mono-ip::before {
+    content: "●";
+    font-size: 8px;
+    color: #ffffff;
+  }
+  .mono-load {
+    color: #888888;
+  }
+  .mono-load span {
+    color: #ffffff;
+  }
+</style>
+</head>
+<body>
+
+  <div class="preview-desc">
+    <h2>主题四：纯黑白仪器仪表风 (Monochrome Telemetry)</h2>
+    <p>专为 320×240 高清 LCD 打造：纯黑底色、高对比度象牙白线条与字符、经典科研仪器刻度质感、无任何杂乱网格与色彩干扰。</p>
+  </div>
+
+  <!-- 模拟 320x240 ESP32-S3 实机展示框 -->
+  <div class="screen-frame">
+    <div class="mono-container">
+      
+      <!-- 1. 顶部状态栏 -->
+      <div class="mono-header">
+        <div class="mono-title">
+          <span>PVE HOST</span>
+          <span class="mono-badge">LIVE</span>
+        </div>
+        <div class="mono-uptime">UP 4D 12H</div>
+      </div>
+
+      <!-- 2. 中间仪表区 -->
+      <div class="mono-body">
+        
+        <!-- 左侧：网络吞吐卡 -->
+        <div class="mono-card-net">
+          <div class="mono-card-title">
+            <span>TRAFFIC</span>
+            <span style="font-family: monospace; color:#ffffff;">IKUAI</span>
+          </div>
+          
+          <div class="mono-net-grid">
+            <div class="mono-net-row">
+              <div class="mono-row-left">
+                <span class="tag">DOWN</span>
+                <span class="unit">KB/s</span>
+              </div>
+              <div class="mono-row-val">24.6</div>
+            </div>
+            <div class="mono-net-row">
+              <div class="mono-row-left">
+                <span class="tag">UP</span>
+                <span class="unit">KB/s</span>
+              </div>
+              <div class="mono-row-val">18.2</div>
+            </div>
+          </div>
+
+          <!-- 紧凑精致示波器单色波形 (实线=下行，虚线=上行) -->
+          <div class="mono-wave-box">
+            <svg class="mono-wave-svg" viewBox="0 0 138 60" preserveAspectRatio="none">
+              <!-- 下行：粗白实线 + 微弱渐变填充 -->
+              <defs>
+                <linearGradient id="monoGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
+              <path d="M 0 52 Q 15 48, 25 42 T 50 38 T 75 24 T 95 30 T 115 16 T 138 12 L 138 60 L 0 60 Z" fill="url(#monoGrad)" />
+              <path d="M 0 52 Q 15 48, 25 42 T 50 38 T 75 24 T 95 30 T 115 16 T 138 12" fill="none" stroke="#ffffff" stroke-width="2" />
+              <!-- 上行：高对比虚线 -->
+              <path d="M 0 56 Q 20 54, 35 50 T 65 46 T 90 40 T 115 36 T 138 32" fill="none" stroke="#888888" stroke-width="1.5" stroke-dasharray="3,2" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- 右侧：系统指标柱状仪表卡 -->
+        <div class="mono-card-sys">
+          <div class="mono-card-title">
+            <span>SYSTEM</span>
+            <span style="font-family: monospace; color:#ffffff;">GAUGE</span>
+          </div>
+
+          <!-- CPU 仪表 -->
+          <div class="mono-meter-item">
+            <div class="mono-meter-head">
+              <span class="mono-meter-label">CPU</span>
+              <div>
+                <span class="mono-meter-temp">60°C</span>
+                <span class="mono-meter-val">9.4%</span>
+              </div>
+            </div>
+            <div class="mono-bar-track">
+              <div class="mono-bar-fill" style="width: 9.4%;"></div>
+            </div>
+          </div>
+
+          <!-- RAM 仪表 -->
+          <div class="mono-meter-item">
+            <div class="mono-meter-head">
+              <span class="mono-meter-label">RAM</span>
+              <span class="mono-meter-val">80.3%</span>
+            </div>
+            <div class="mono-bar-track">
+              <div class="mono-bar-fill" style="width: 80.3%;"></div>
+            </div>
+          </div>
+
+          <!-- SSD 仪表 -->
+          <div class="mono-meter-item">
+            <div class="mono-meter-head">
+              <span class="mono-meter-label">SSD</span>
+              <div>
+                <span class="mono-meter-temp">48°C</span>
+                <span class="mono-meter-val">26.2%</span>
+              </div>
+            </div>
+            <div class="mono-bar-track">
+              <div class="mono-bar-fill" style="width: 26.2%;"></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- 3. 底部状态栏 -->
+      <div class="mono-footer">
+        <div class="mono-ip">10.0.0.16</div>
+        <div class="mono-load">LOAD <span>0.42</span></div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

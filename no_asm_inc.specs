@@ -1,0 +1,2 @@
+*asm_options:
+%{-target-help:%:print-asm-header()} %{v} %{w:-W} %(asm_debug_option) %{gz|gz=zlib:--compress-debug-sections=zlib} %{gz=none:--compress-debug-sections=none} %{gz=zlib-gnu:}%a %Y %{c:%W{o*}%{!o*:-o %w%b%O}}%{!c:-o %d%w%u%O}
