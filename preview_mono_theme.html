@@ -165,7 +165,7 @@
   .mono-wave-box {
     height: 60px;
     width: 100%;
-    margin-top: 8px;
+    margin-top: 6px;
     border: 1px solid #222222;
     position: relative;
     background: #030303;
@@ -174,6 +174,20 @@
     width: 100%;
     height: 100%;
     display: block;
+  }
+
+  /* 网速卡片下方直接显示 IP 地址 (无 IP: 前缀) */
+  .mono-ip-box {
+    margin-top: 5px;
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: #a0a0a0;
+    letter-spacing: 0.5px;
+    text-align: center;
+    background: #080808;
+    border: 1px solid #1a1a1a;
+    padding: 2px 0;
   }
 
   /* 右侧：系统指标柱状仪表卡 */
@@ -228,7 +242,7 @@
     background: #ffffff;
   }
 
-  /* 底部状态栏 */
+  /* 底部状态栏: 左边日期(YY-MM-DD), 中间时间(hh:mm:ss), 右边星期几(UTC +8) */
   .mono-footer {
     height: 22px;
     border-top: 1px solid #ffffff;
@@ -237,25 +251,22 @@
     align-items: center;
     padding-top: 2px;
     font-family: monospace;
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
   }
-  .mono-ip {
-    color: #cccccc;
-    display: flex;
-    align-items: center;
-    gap: 4px;
+  .mono-footer-date {
+    color: #999999;
+    letter-spacing: 0.5px;
   }
-  .mono-ip::before {
-    content: "●";
-    font-size: 8px;
+  .mono-footer-time {
     color: #ffffff;
+    font-size: 12px;
+    letter-spacing: 1px;
+    font-weight: 800;
   }
-  .mono-load {
-    color: #888888;
-  }
-  .mono-load span {
-    color: #ffffff;
+  .mono-footer-week {
+    color: #999999;
+    letter-spacing: 0.5px;
   }
 </style>
 </head>
@@ -322,6 +333,9 @@
               <path d="M 0 56 Q 20 54, 35 50 T 65 46 T 90 40 T 115 36 T 138 32" fill="none" stroke="#888888" stroke-width="1.5" stroke-dasharray="3,2" />
             </svg>
           </div>
+
+          <!-- 网速图表下方直接显示 IP 地址 (无 IP: 前缀) -->
+          <div class="mono-ip-box">10.0.0.16</div>
         </div>
 
         <!-- 右侧：系统指标柱状仪表卡 -->
@@ -374,10 +388,11 @@
 
       </div>
 
-      <!-- 3. 底部状态栏 -->
+      <!-- 3. 底部状态栏: 左日期，中时间，右星期 (UTC +8) -->
       <div class="mono-footer">
-        <div class="mono-ip">10.0.0.16</div>
-        <div class="mono-load">LOAD <span>0.42</span></div>
+        <span class="mono-footer-date">26-10-12</span>
+        <span class="mono-footer-time">18:14:31</span>
+        <span class="mono-footer-week">MON</span>
       </div>
 
     </div>

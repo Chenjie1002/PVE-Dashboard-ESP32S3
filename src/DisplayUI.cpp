@@ -1,3 +1,4 @@
+#include <time.h>
 #include "DisplayUI.h"
 
 lv_disp_buf_t DisplayUI::_disp_buf;
@@ -31,7 +32,17 @@ DisplayUI::DisplayUI() :
     _target_rx_kb(0.0), _target_tx_kb(0.0), _current_rx_kb(0.0), _current_tx_kb(0.0),
     _chart_y_range(64.0), _last_chart_flow_time(0),
     _login_page(nullptr), _monitor_page(nullptr), _login_status_label(nullptr),
-    _up_speed_max(16), _down_speed_max(16) {
+    _node_label(nullptr), _uptime_label(nullptr),
+    _up_speed_label(nullptr), _up_speed_unit(nullptr),
+    _down_speed_label(nullptr), _down_speed_unit(nullptr),
+    _chart(nullptr), _ser_up(nullptr), _ser_down(nullptr),
+    _up_speed_max(16), _down_speed_max(16),
+    _cpu_bar(nullptr), _cpu_val_label(nullptr), _cpu_temp_label(nullptr),
+    _mem_bar(nullptr), _mem_val_label(nullptr),
+    _disk_bar(nullptr), _disk_val_label(nullptr), _disk_temp_label(nullptr),
+    _ip_label(nullptr),
+    _footer_date_label(nullptr), _footer_time_label(nullptr), _footer_week_label(nullptr),
+    _footer_info_label(nullptr) {
     tft_ptr = &_tft;
     memset(_upload_series, 0, sizeof(_upload_series));
     memset(_download_series, 0, sizeof(_download_series));
@@ -150,6 +161,7 @@ void DisplayUI::rebuildMonitorPage() {
     if (_has_last_status) {
         updateData(_last_status);
     }
+    updateClock();
 }
 
 void DisplayUI::createLoginPage() {
@@ -271,8 +283,8 @@ void DisplayUI::createMonitorPageBento() {
 
     // 面积折线图
     _chart = lv_chart_create(card_net, NULL);
-    lv_obj_set_size(_chart, 140, 98);
-    lv_obj_set_pos(_chart, 4, 64);
+    lv_obj_set_size(_chart, 140, 80);
+    lv_obj_set_pos(_chart, 4, 62);
     lv_chart_set_type(_chart, LV_CHART_TYPE_LINE);
     lv_chart_set_range(_chart, 0, 1024);
     lv_chart_set_point_count(_chart, CHART_POINTS);
@@ -293,6 +305,13 @@ void DisplayUI::createMonitorPageBento() {
     _ser_down = lv_chart_add_series(_chart, lv_color_hex(0x3fb950));
     lv_chart_set_points(_chart, _ser_up, _upload_series);
     lv_chart_set_points(_chart, _ser_down, _download_series);
+
+    // IP 地址标签 (位于网速图表正下方)
+    _ip_label = lv_label_create(card_net, NULL);
+    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_label_set_text(_ip_label, strlen(_last_ip) > 0 ? _last_ip : "Connecting...");
+    lv_obj_set_style_local_text_color(_ip_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x8b949e));
+    lv_obj_align(_ip_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -4);
 
     // 3. 右侧 Bento 硬件资源卡片 (164, 22, 148, 168)
     lv_obj_t *card_res = lv_obj_create(_monitor_page, NULL);
@@ -390,17 +409,25 @@ void DisplayUI::createMonitorPageBento() {
     lv_obj_set_style_local_border_width(card_foot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 1);
     lv_obj_set_style_local_radius(card_foot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 6);
 
-    _ip_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_sub_12);
-    lv_label_set_text(_ip_label, "IP: Connecting...");
-    lv_obj_set_style_local_text_color(_ip_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x8b949e));
-    lv_obj_align(_ip_label, NULL, LV_ALIGN_IN_LEFT_MID, 10, 0);
+    _footer_date_label = lv_label_create(card_foot, NULL);
+    lv_obj_add_style(_footer_date_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_label_set_text(_footer_date_label, "--/--/--");
+    lv_obj_set_style_local_text_color(_footer_date_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x8b949e));
+    lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_LEFT_MID, 12, 0);
 
-    _footer_info_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_info_label, LV_LABEL_PART_MAIN, &style_sub_12);
-    lv_label_set_text(_footer_info_label, "LOAD: 0.00");
-    lv_obj_set_style_local_text_color(_footer_info_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x8b949e));
-    lv_obj_align(_footer_info_label, NULL, LV_ALIGN_IN_RIGHT_MID, -10, 0);
+    _footer_time_label = lv_label_create(card_foot, NULL);
+    lv_obj_add_style(_footer_time_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_label_set_text(_footer_time_label, "--:--:--");
+    lv_obj_set_style_local_text_color(_footer_time_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+    lv_obj_align(_footer_time_label, NULL, LV_ALIGN_CENTER, 0, 0);
+
+    _footer_week_label = lv_label_create(card_foot, NULL);
+    lv_obj_add_style(_footer_week_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_label_set_text(_footer_week_label, "---");
+    lv_obj_set_style_local_text_color(_footer_week_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x58a6ff));
+    lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_RIGHT_MID, -12, 0);
+
+    _footer_info_label = nullptr;
 }
 
 // ========================================================
@@ -476,8 +503,8 @@ void DisplayUI::createMonitorPageCyberpunk() {
     lv_obj_set_pos(_up_speed_unit, 66, 44);
 
     _chart = lv_chart_create(card_net, NULL);
-    lv_obj_set_size(_chart, 140, 98);
-    lv_obj_set_pos(_chart, 4, 64);
+    lv_obj_set_size(_chart, 140, 80);
+    lv_obj_set_pos(_chart, 4, 62);
     lv_chart_set_type(_chart, LV_CHART_TYPE_LINE);
     lv_chart_set_range(_chart, 0, 1024);
     lv_chart_set_point_count(_chart, CHART_POINTS);
@@ -496,6 +523,13 @@ void DisplayUI::createMonitorPageCyberpunk() {
     _ser_down = lv_chart_add_series(_chart, lv_color_hex(0x00ff88));
     lv_chart_set_points(_chart, _ser_up, _upload_series);
     lv_chart_set_points(_chart, _ser_down, _download_series);
+
+    // IP 地址标签 (位于网速图表正下方)
+    _ip_label = lv_label_create(card_net, NULL);
+    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_label_set_text(_ip_label, strlen(_last_ip) > 0 ? _last_ip : "Connecting...");
+    lv_obj_set_style_local_text_color(_ip_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x00f2fe));
+    lv_obj_align(_ip_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -4);
 
     // 右侧卡片
     lv_obj_t *card_res = lv_obj_create(_monitor_page, NULL);
@@ -590,17 +624,25 @@ void DisplayUI::createMonitorPageCyberpunk() {
     lv_obj_set_style_local_border_width(card_foot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 1);
     lv_obj_set_style_local_radius(card_foot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 4);
 
-    _ip_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_f1_reg);
-    lv_label_set_text(_ip_label, "IP: 192.168.1.100");
-    lv_obj_set_style_local_text_color(_ip_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x00f2fe));
-    lv_obj_align(_ip_label, NULL, LV_ALIGN_IN_LEFT_MID, 10, 0);
+    _footer_date_label = lv_label_create(card_foot, NULL);
+    lv_obj_add_style(_footer_date_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_label_set_text(_footer_date_label, "--/--/--");
+    lv_obj_set_style_local_text_color(_footer_date_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x00f2fe));
+    lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_LEFT_MID, 12, 0);
 
-    _footer_info_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_info_label, LV_LABEL_PART_MAIN, &style_f1_reg);
-    lv_label_set_text(_footer_info_label, "LOAD: 0.00");
-    lv_obj_set_style_local_text_color(_footer_info_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x8da0b8));
-    lv_obj_align(_footer_info_label, NULL, LV_ALIGN_IN_RIGHT_MID, -10, 0);
+    _footer_time_label = lv_label_create(card_foot, NULL);
+    lv_obj_add_style(_footer_time_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_label_set_text(_footer_time_label, "--:--:--");
+    lv_obj_set_style_local_text_color(_footer_time_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x00ff88));
+    lv_obj_align(_footer_time_label, NULL, LV_ALIGN_CENTER, 0, 0);
+
+    _footer_week_label = lv_label_create(card_foot, NULL);
+    lv_obj_add_style(_footer_week_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_label_set_text(_footer_week_label, "---");
+    lv_obj_set_style_local_text_color(_footer_week_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xff007f));
+    lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_RIGHT_MID, -12, 0);
+
+    _footer_info_label = nullptr;
 }
 
 // ========================================================
@@ -683,8 +725,8 @@ void DisplayUI::createMonitorPageIndustrial() {
     lv_obj_set_pos(_up_speed_unit, 66, 44);
 
     _chart = lv_chart_create(card_net, NULL);
-    lv_obj_set_size(_chart, 140, 98);
-    lv_obj_set_pos(_chart, 4, 64);
+    lv_obj_set_size(_chart, 140, 80);
+    lv_obj_set_pos(_chart, 4, 62);
     lv_chart_set_type(_chart, LV_CHART_TYPE_LINE);
     lv_chart_set_range(_chart, 0, 1024);
     lv_chart_set_point_count(_chart, CHART_POINTS);
@@ -703,6 +745,13 @@ void DisplayUI::createMonitorPageIndustrial() {
     _ser_down = lv_chart_add_series(_chart, lv_color_hex(0x00ff66));
     lv_chart_set_points(_chart, _ser_up, _upload_series);
     lv_chart_set_points(_chart, _ser_down, _download_series);
+
+    // IP 地址标签 (位于网速图表正下方)
+    _ip_label = lv_label_create(card_net, NULL);
+    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_label_set_text(_ip_label, strlen(_last_ip) > 0 ? _last_ip : "Connecting...");
+    lv_obj_set_style_local_text_color(_ip_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xffb000));
+    lv_obj_align(_ip_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -4);
 
     // 右侧卡片
     lv_obj_t *card_res = lv_obj_create(_monitor_page, NULL);
@@ -797,17 +846,25 @@ void DisplayUI::createMonitorPageIndustrial() {
     lv_obj_set_style_local_border_width(card_foot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 1);
     lv_obj_set_style_local_radius(card_foot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 0);
 
-    _ip_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_f1_reg);
-    lv_label_set_text(_ip_label, "IP: 192.168.1.100");
-    lv_obj_set_style_local_text_color(_ip_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xffb000));
-    lv_obj_align(_ip_label, NULL, LV_ALIGN_IN_LEFT_MID, 10, 0);
+    _footer_date_label = lv_label_create(card_foot, NULL);
+    lv_obj_add_style(_footer_date_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_label_set_text(_footer_date_label, "--/--/--");
+    lv_obj_set_style_local_text_color(_footer_date_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xffb000));
+    lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_LEFT_MID, 12, 0);
 
-    _footer_info_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_info_label, LV_LABEL_PART_MAIN, &style_f1_reg);
-    lv_label_set_text(_footer_info_label, "LOAD: 0.00");
-    lv_obj_set_style_local_text_color(_footer_info_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xffb000));
-    lv_obj_align(_footer_info_label, NULL, LV_ALIGN_IN_RIGHT_MID, -10, 0);
+    _footer_time_label = lv_label_create(card_foot, NULL);
+    lv_obj_add_style(_footer_time_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_label_set_text(_footer_time_label, "--:--:--");
+    lv_obj_set_style_local_text_color(_footer_time_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+    lv_obj_align(_footer_time_label, NULL, LV_ALIGN_CENTER, 0, 0);
+
+    _footer_week_label = lv_label_create(card_foot, NULL);
+    lv_obj_add_style(_footer_week_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_label_set_text(_footer_week_label, "---");
+    lv_obj_set_style_local_text_color(_footer_week_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xffb000));
+    lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_RIGHT_MID, -12, 0);
+
+    _footer_info_label = nullptr;
 }
 
 // ========================================================
@@ -921,6 +978,13 @@ void DisplayUI::createMonitorPageMono() {
     _ser_down = lv_chart_add_series(_chart, LV_COLOR_WHITE);         // 纯白下行线
     _ser_up   = lv_chart_add_series(_chart, lv_color_hex(0x777777)); // 中灰上行线
 
+    // IP 地址标签 (位于网速图表正下方)
+    _ip_label = lv_label_create(card_net, NULL);
+    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_label_set_text(_ip_label, strlen(_last_ip) > 0 ? _last_ip : "Connecting...");
+    lv_obj_set_style_local_text_color(_ip_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xaaaaaa));
+    lv_obj_align(_ip_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -4);
+
     // 3. 右侧系统指标卡 (162, 22, 150, 168)
     lv_obj_t *card_res = lv_obj_create(_monitor_page, NULL);
     lv_obj_set_size(card_res, 150, 168);
@@ -1032,17 +1096,25 @@ void DisplayUI::createMonitorPageMono() {
     lv_obj_set_style_local_border_width(card_foot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 1);
     lv_obj_set_style_local_radius(card_foot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 2);
 
-    _ip_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_f1_reg);
-    lv_label_set_text(_ip_label, "IP: 192.168.1.100");
-    lv_obj_set_style_local_text_color(_ip_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
-    lv_obj_align(_ip_label, NULL, LV_ALIGN_IN_LEFT_MID, 10, 0);
+    _footer_date_label = lv_label_create(card_foot, NULL);
+    lv_obj_add_style(_footer_date_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_label_set_text(_footer_date_label, "--/--/--");
+    lv_obj_set_style_local_text_color(_footer_date_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x888888));
+    lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_LEFT_MID, 12, 0);
 
-    _footer_info_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_info_label, LV_LABEL_PART_MAIN, &style_f1_reg);
-    lv_label_set_text(_footer_info_label, "LOAD: 0.00");
-    lv_obj_set_style_local_text_color(_footer_info_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x888888));
-    lv_obj_align(_footer_info_label, NULL, LV_ALIGN_IN_RIGHT_MID, -10, 0);
+    _footer_time_label = lv_label_create(card_foot, NULL);
+    lv_obj_add_style(_footer_time_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_label_set_text(_footer_time_label, "--:--:--");
+    lv_obj_set_style_local_text_color(_footer_time_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+    lv_obj_align(_footer_time_label, NULL, LV_ALIGN_CENTER, 0, 0);
+
+    _footer_week_label = lv_label_create(card_foot, NULL);
+    lv_obj_add_style(_footer_week_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_label_set_text(_footer_week_label, "---");
+    lv_obj_set_style_local_text_color(_footer_week_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xaaaaaa));
+    lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_RIGHT_MID, -12, 0);
+
+    _footer_info_label = nullptr;
 }
 
 void DisplayUI::showLogin() {
@@ -1078,8 +1150,12 @@ void DisplayUI::updateWiFiIP(const char *ip_str) {
         _last_ip[sizeof(_last_ip) - 1] = '\0';
     }
     if (_ip_label) {
-        lv_label_set_text_fmt(_ip_label, "IP: %s", _last_ip);
-        lv_obj_align(_ip_label, NULL, LV_ALIGN_IN_LEFT_MID, 10, 0);
+        if (strlen(_last_ip) > 0) {
+            lv_label_set_text(_ip_label, _last_ip);
+        } else {
+            lv_label_set_text(_ip_label, "Connecting...");
+        }
+        lv_obj_align(_ip_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -4);
     }
 }
 
@@ -1197,10 +1273,60 @@ void DisplayUI::flowChart() {
     lv_chart_refresh(_chart);
 }
 
+void DisplayUI::updateClock() {
+    if (!_footer_time_label && !_footer_date_label && !_footer_week_label) return;
+
+    time_t now = time(nullptr);
+    struct tm timeinfo;
+    if (localtime_r(&now, &timeinfo) && timeinfo.tm_year > (2020 - 1900)) {
+        char date_buf[16];
+        char time_buf[16];
+        const char *week_names[] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
+
+        snprintf(date_buf, sizeof(date_buf), "%02d-%02d-%02d",
+                 (timeinfo.tm_year + 1900) % 100, timeinfo.tm_mon + 1, timeinfo.tm_mday);
+        snprintf(time_buf, sizeof(time_buf), "%02d:%02d:%02d",
+                 timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+        const char *week_str = week_names[timeinfo.tm_wday % 7];
+
+        if (_footer_date_label) {
+            lv_label_set_text(_footer_date_label, date_buf);
+            lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_LEFT_MID, 12, 0);
+        }
+        if (_footer_time_label) {
+            lv_label_set_text(_footer_time_label, time_buf);
+            lv_obj_align(_footer_time_label, NULL, LV_ALIGN_CENTER, 0, 0);
+        }
+        if (_footer_week_label) {
+            lv_label_set_text(_footer_week_label, week_str);
+            lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_RIGHT_MID, -12, 0);
+        }
+    } else {
+        if (_footer_date_label) {
+            lv_label_set_text(_footer_date_label, "--/--/--");
+            lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_LEFT_MID, 12, 0);
+        }
+        if (_footer_time_label) {
+            lv_label_set_text(_footer_time_label, "--:--:--");
+            lv_obj_align(_footer_time_label, NULL, LV_ALIGN_CENTER, 0, 0);
+        }
+        if (_footer_week_label) {
+            lv_label_set_text(_footer_week_label, "---");
+            lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_RIGHT_MID, -12, 0);
+        }
+    }
+}
+
 void DisplayUI::loop() {
     unsigned long now = millis();
     if (now - _last_chart_flow_time >= 150) { // 每 150ms 连续平滑流水推进一帧 (约 7 FPS)
         _last_chart_flow_time = now;
         flowChart();
+    }
+
+    static unsigned long last_clock_update = 0;
+    if (now - last_clock_update >= 500) { // 每 500ms 刷新时钟
+        last_clock_update = now;
+        updateClock();
     }
 }

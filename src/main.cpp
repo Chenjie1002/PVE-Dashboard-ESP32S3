@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <WiFi.h>
+#include <time.h>
 #include <lvgl.h>
 #include "config.h"
 #include "DisplayUI.h"
@@ -48,6 +49,10 @@ void tryConnectWiFi() {
         Serial.printf("[WiFi] IP: %s\n", WiFi.localIP().toString().c_str());
         wifi_connected = true;
         portal_mode = false;
+
+        // 同步 NTP 网络时间 (UTC+8: 8 * 3600 秒, 夏令时 0)
+        configTime(8 * 3600, 0, "ntp.aliyun.com", "cn.pool.ntp.org", "pool.ntp.org");
+        Serial.println("[NTP] Initialized SNTP (UTC+8)");
 
         ui.updateWiFiIP(WiFi.localIP().toString().c_str());
         pve.setConfig(app_config.pve_host, app_config.pve_port, app_config.pve_node,
@@ -165,6 +170,7 @@ void loop() {
         return;
     } else if (!wifi_connected) {
         wifi_connected = true;
+        configTime(8 * 3600, 0, "ntp.aliyun.com", "cn.pool.ntp.org", "pool.ntp.org");
         ui.updateWiFiIP(WiFi.localIP().toString().c_str());
         ui.showMonitor();
     }

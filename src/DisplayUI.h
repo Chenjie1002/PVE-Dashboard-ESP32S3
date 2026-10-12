@@ -73,10 +73,13 @@ private:
     lv_obj_t *_disk_bar;
     lv_obj_t *_disk_val_label;
     lv_obj_t *_disk_temp_label;
-
     lv_obj_t *_ip_label;
-    lv_obj_t *_footer_info_label;
+    lv_obj_t *_footer_date_label;
+    lv_obj_t *_footer_time_label;
+    lv_obj_t *_footer_week_label;
+    lv_obj_t *_footer_info_label; // 保持向后兼容
 
+    void updateClock();
     void initStyles();
     void createLoginPage();
     void rebuildMonitorPage();
