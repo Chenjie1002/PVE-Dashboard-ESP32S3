@@ -17,9 +17,48 @@ static AppConfig app_config;
 static WebPortal portal;
 
 static bool portal_mode = false;
-static bool wifi_connected = false;
+static volatile bool wifi_connected = false;
 static unsigned long last_poll_time = 0;
 static unsigned long wifi_lost_time = 0;
+
+static PVEStatus shared_pve_status;
+static volatile bool new_data_available = false;
+static SemaphoreHandle_t data_mutex = NULL;
+
+void networkPollTask(void *pvParameters) {
+    while (1) {
+        if (wifi_connected && !portal_mode) {
+            PVEStatus temp_status;
+            bool success = pve.updateStatus(temp_status);
+            if (success) {
+                if (app_config.ikuai_enable && ikuai.isConfigured()) {
+                    double ik_rx = 0, ik_tx = 0;
+                    if (ikuai.updateSpeed(ik_rx, ik_tx)) {
+                        temp_status.rx_speed_kb = ik_rx;
+                        temp_status.tx_speed_kb = ik_tx;
+                    }
+                }
+
+                Serial.printf("[PVE] CPU: %.1f%% (%0.1fC) | RAM: %.1f%% | DISK: %.1f%% (%0.1fC) | LOAD: %.2f\n",
+                              temp_status.cpu_usage,
+                              temp_status.cpu_temp,
+                              temp_status.mem_usage,
+                              temp_status.rootfs_usage,
+                              temp_status.disk_temp,
+                              temp_status.loadavg);
+
+                if (data_mutex && xSemaphoreTake(data_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+                    shared_pve_status = temp_status;
+                    new_data_available = true;
+                    xSemaphoreGive(data_mutex);
+                }
+            } else {
+                Serial.println("[PVE] Poll node status failed or PVE host unreachable.");
+            }
+        }
+        vTaskDelay(pdMS_TO_TICKS(PVE_POLL_INTERVAL_MS));
+    }
+}
 
 void startPortalMode() {
     Serial.println("[Main] Entering AP WebPortal mode...");
@@ -92,6 +131,10 @@ void setup() {
 
     // 从 NVS 读取用户配置
     bool has_config = ConfigManager::load(app_config);
+
+    data_mutex = xSemaphoreCreateMutex();
+    // 启动 Core 0 异步后台网络轮询任务 (8KB 栈空间，优先级 1，独占 Core 0)
+    xTaskCreatePinnedToCore(networkPollTask, "NetPollTask", 8192, NULL, 1, NULL, 0);
 
     if (!has_config) {
         Serial.println("[Config] No valid WiFi/PVE config in NVS. Starting AP WebPortal...");
@@ -175,34 +218,20 @@ void loop() {
         ui.showMonitor();
     }
 
-    // 定时轮询 PVE 状态与 iKuai 真实外网网速
-    if (now - last_poll_time >= PVE_POLL_INTERVAL_MS) {
-        last_poll_time = now;
-
-        bool success = pve.updateStatus(pve_status);
-        if (success) {
-            // 若启用了 iKuai 原生接口，优先使用 iKuai 真实 WAN 流量数据覆盖
-            if (app_config.ikuai_enable && ikuai.isConfigured()) {
-                double ik_rx = 0, ik_tx = 0;
-                if (ikuai.updateSpeed(ik_rx, ik_tx)) {
-                    pve_status.rx_speed_kb = ik_rx;
-                    pve_status.tx_speed_kb = ik_tx;
-                }
-            }
-
-            Serial.printf("[PVE] CPU: %.1f%% (%0.1fC) | RAM: %.1f%% | DISK: %.1f%% (%0.1fC) | LOAD: %.2f\n",
-                          pve_status.cpu_usage,
-                          pve_status.cpu_temp,
-                          pve_status.mem_usage,
-                          pve_status.rootfs_usage,
-                          pve_status.disk_temp,
-                          pve_status.loadavg);
-        } else {
-            Serial.println("[PVE] Poll node status failed or PVE host unreachable.");
+    // 检查是否有 Core 0 异步获取回来的最新状态数据
+    if (new_data_available) {
+        PVEStatus status_copy;
+        bool has_copy = false;
+        if (data_mutex && xSemaphoreTake(data_mutex, pdMS_TO_TICKS(10)) == pdTRUE) {
+            status_copy = shared_pve_status;
+            new_data_available = false;
+            has_copy = true;
+            xSemaphoreGive(data_mutex);
         }
-
-        ui.updateData(pve_status);
+        if (has_copy) {
+            ui.updateData(status_copy);
+        }
     }
 
-    delay(5);
+    delay(2);
 }

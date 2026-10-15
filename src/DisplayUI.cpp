@@ -308,7 +308,7 @@ void DisplayUI::createMonitorPageBento() {
 
     // IP 地址标签 (位于网速图表正下方)
     _ip_label = lv_label_create(card_net, NULL);
-    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_kh_16);
     lv_label_set_text(_ip_label, strlen(_last_ip) > 0 ? _last_ip : "Connecting...");
     lv_obj_set_style_local_text_color(_ip_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x8b949e));
     lv_obj_align(_ip_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -4);
@@ -410,22 +410,22 @@ void DisplayUI::createMonitorPageBento() {
     lv_obj_set_style_local_radius(card_foot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 6);
 
     _footer_date_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_date_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_obj_add_style(_footer_date_label, LV_LABEL_PART_MAIN, &style_kh_16);
     lv_label_set_text(_footer_date_label, "--/--/--");
     lv_obj_set_style_local_text_color(_footer_date_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x8b949e));
-    lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_LEFT_MID, 12, 0);
+    lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 12, -9);
 
     _footer_time_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_time_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_obj_add_style(_footer_time_label, LV_LABEL_PART_MAIN, &style_kh_22);
     lv_label_set_text(_footer_time_label, "--:--:--");
     lv_obj_set_style_local_text_color(_footer_time_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
-    lv_obj_align(_footer_time_label, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_align(_footer_time_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -8);
 
     _footer_week_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_week_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_obj_add_style(_footer_week_label, LV_LABEL_PART_MAIN, &style_kh_16);
     lv_label_set_text(_footer_week_label, "---");
     lv_obj_set_style_local_text_color(_footer_week_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x58a6ff));
-    lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_RIGHT_MID, -12, 0);
+    lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -12, -9);
 
     _footer_info_label = nullptr;
 }
@@ -526,7 +526,7 @@ void DisplayUI::createMonitorPageCyberpunk() {
 
     // IP 地址标签 (位于网速图表正下方)
     _ip_label = lv_label_create(card_net, NULL);
-    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_kh_16);
     lv_label_set_text(_ip_label, strlen(_last_ip) > 0 ? _last_ip : "Connecting...");
     lv_obj_set_style_local_text_color(_ip_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x00f2fe));
     lv_obj_align(_ip_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -4);
@@ -625,22 +625,22 @@ void DisplayUI::createMonitorPageCyberpunk() {
     lv_obj_set_style_local_radius(card_foot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 4);
 
     _footer_date_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_date_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_obj_add_style(_footer_date_label, LV_LABEL_PART_MAIN, &style_kh_16);
     lv_label_set_text(_footer_date_label, "--/--/--");
     lv_obj_set_style_local_text_color(_footer_date_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x00f2fe));
-    lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_LEFT_MID, 12, 0);
+    lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 12, -9);
 
     _footer_time_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_time_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_obj_add_style(_footer_time_label, LV_LABEL_PART_MAIN, &style_kh_22);
     lv_label_set_text(_footer_time_label, "--:--:--");
     lv_obj_set_style_local_text_color(_footer_time_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x00ff88));
-    lv_obj_align(_footer_time_label, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_align(_footer_time_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -8);
 
     _footer_week_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_week_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_obj_add_style(_footer_week_label, LV_LABEL_PART_MAIN, &style_kh_16);
     lv_label_set_text(_footer_week_label, "---");
     lv_obj_set_style_local_text_color(_footer_week_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xff007f));
-    lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_RIGHT_MID, -12, 0);
+    lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -12, -9);
 
     _footer_info_label = nullptr;
 }
@@ -748,7 +748,7 @@ void DisplayUI::createMonitorPageIndustrial() {
 
     // IP 地址标签 (位于网速图表正下方)
     _ip_label = lv_label_create(card_net, NULL);
-    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_kh_16);
     lv_label_set_text(_ip_label, strlen(_last_ip) > 0 ? _last_ip : "Connecting...");
     lv_obj_set_style_local_text_color(_ip_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xffb000));
     lv_obj_align(_ip_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -4);
@@ -847,22 +847,22 @@ void DisplayUI::createMonitorPageIndustrial() {
     lv_obj_set_style_local_radius(card_foot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 0);
 
     _footer_date_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_date_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_obj_add_style(_footer_date_label, LV_LABEL_PART_MAIN, &style_kh_16);
     lv_label_set_text(_footer_date_label, "--/--/--");
     lv_obj_set_style_local_text_color(_footer_date_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xffb000));
-    lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_LEFT_MID, 12, 0);
+    lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 12, -9);
 
     _footer_time_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_time_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_obj_add_style(_footer_time_label, LV_LABEL_PART_MAIN, &style_kh_22);
     lv_label_set_text(_footer_time_label, "--:--:--");
     lv_obj_set_style_local_text_color(_footer_time_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
-    lv_obj_align(_footer_time_label, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_align(_footer_time_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -8);
 
     _footer_week_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_week_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_obj_add_style(_footer_week_label, LV_LABEL_PART_MAIN, &style_kh_16);
     lv_label_set_text(_footer_week_label, "---");
     lv_obj_set_style_local_text_color(_footer_week_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xffb000));
-    lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_RIGHT_MID, -12, 0);
+    lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -12, -9);
 
     _footer_info_label = nullptr;
 }
@@ -980,7 +980,7 @@ void DisplayUI::createMonitorPageMono() {
 
     // IP 地址标签 (位于网速图表正下方)
     _ip_label = lv_label_create(card_net, NULL);
-    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_obj_add_style(_ip_label, LV_LABEL_PART_MAIN, &style_kh_16);
     lv_label_set_text(_ip_label, strlen(_last_ip) > 0 ? _last_ip : "Connecting...");
     lv_obj_set_style_local_text_color(_ip_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xaaaaaa));
     lv_obj_align(_ip_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -4);
@@ -1097,22 +1097,22 @@ void DisplayUI::createMonitorPageMono() {
     lv_obj_set_style_local_radius(card_foot, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, 2);
 
     _footer_date_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_date_label, LV_LABEL_PART_MAIN, &style_f1_reg);
+    lv_obj_add_style(_footer_date_label, LV_LABEL_PART_MAIN, &style_kh_16);
     lv_label_set_text(_footer_date_label, "--/--/--");
     lv_obj_set_style_local_text_color(_footer_date_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x888888));
-    lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_LEFT_MID, 12, 0);
+    lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 12, -9);
 
     _footer_time_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_time_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_obj_add_style(_footer_time_label, LV_LABEL_PART_MAIN, &style_kh_22);
     lv_label_set_text(_footer_time_label, "--:--:--");
     lv_obj_set_style_local_text_color(_footer_time_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
-    lv_obj_align(_footer_time_label, NULL, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_align(_footer_time_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -8);
 
     _footer_week_label = lv_label_create(card_foot, NULL);
-    lv_obj_add_style(_footer_week_label, LV_LABEL_PART_MAIN, &style_f1_bold);
+    lv_obj_add_style(_footer_week_label, LV_LABEL_PART_MAIN, &style_kh_16);
     lv_label_set_text(_footer_week_label, "---");
     lv_obj_set_style_local_text_color(_footer_week_label, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xaaaaaa));
-    lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_RIGHT_MID, -12, 0);
+    lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -12, -9);
 
     _footer_info_label = nullptr;
 }
@@ -1243,9 +1243,9 @@ void DisplayUI::updateData(const PVEStatus &status) {
 void DisplayUI::flowChart() {
     if (!_chart || !_ser_up || !_ser_down) return;
 
-    // 1. 指数渐进逼近目标网速
-    _current_rx_kb = _current_rx_kb * 0.70 + _target_rx_kb * 0.30;
-    _current_tx_kb = _current_tx_kb * 0.70 + _target_tx_kb * 0.30;
+    // 1. 指数阻尼渐进逼近目标网速 (更细腻的高帧率平滑插值)
+    _current_rx_kb = _current_rx_kb * 0.88 + _target_rx_kb * 0.12;
+    _current_tx_kb = _current_tx_kb * 0.88 + _target_tx_kb * 0.12;
 
     // 2. 队列左移 1 步 (28 点密集平滑推进)
     for (int i = 0; i < CHART_POINTS - 1; i++) {
@@ -1257,7 +1257,7 @@ void DisplayUI::flowChart() {
     _download_series[CHART_POINTS - 1] = (lv_coord_t)_current_rx_kb;
     _upload_series[CHART_POINTS - 1] = (lv_coord_t)_current_tx_kb;
 
-    // 4. 动态平滑 Y 轴量程 (消除量程突变震荡)
+    // 4. 动态平滑 Y 轴量程 (阻尼消除量程突变震荡)
     lv_coord_t peak = 32;
     for (int i = 0; i < CHART_POINTS; i++) {
         if (_download_series[i] > peak) peak = _download_series[i];
@@ -1265,7 +1265,7 @@ void DisplayUI::flowChart() {
     }
     double target_y = peak * 1.25;
     if (target_y < 32.0) target_y = 32.0;
-    _chart_y_range = _chart_y_range * 0.85 + target_y * 0.15;
+    _chart_y_range = _chart_y_range * 0.90 + target_y * 0.10;
 
     lv_chart_set_range(_chart, 0, (lv_coord_t)_chart_y_range);
     lv_chart_set_points(_chart, _ser_up, _upload_series);
@@ -1291,41 +1291,41 @@ void DisplayUI::updateClock() {
 
         if (_footer_date_label) {
             lv_label_set_text(_footer_date_label, date_buf);
-            lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_LEFT_MID, 12, 0);
+            lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 12, -9);
         }
         if (_footer_time_label) {
             lv_label_set_text(_footer_time_label, time_buf);
-            lv_obj_align(_footer_time_label, NULL, LV_ALIGN_CENTER, 0, 0);
+            lv_obj_align(_footer_time_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -8);
         }
         if (_footer_week_label) {
             lv_label_set_text(_footer_week_label, week_str);
-            lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_RIGHT_MID, -12, 0);
+            lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -12, -9);
         }
     } else {
         if (_footer_date_label) {
             lv_label_set_text(_footer_date_label, "--/--/--");
-            lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_LEFT_MID, 12, 0);
+            lv_obj_align(_footer_date_label, NULL, LV_ALIGN_IN_BOTTOM_LEFT, 12, -9);
         }
         if (_footer_time_label) {
             lv_label_set_text(_footer_time_label, "--:--:--");
-            lv_obj_align(_footer_time_label, NULL, LV_ALIGN_CENTER, 0, 0);
+            lv_obj_align(_footer_time_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, -8);
         }
         if (_footer_week_label) {
             lv_label_set_text(_footer_week_label, "---");
-            lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_RIGHT_MID, -12, 0);
+            lv_obj_align(_footer_week_label, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, -12, -9);
         }
     }
 }
 
 void DisplayUI::loop() {
     unsigned long now = millis();
-    if (now - _last_chart_flow_time >= 150) { // 每 150ms 连续平滑流水推进一帧 (约 7 FPS)
+    if (now - _last_chart_flow_time >= 50) { // 每 50ms 高帧率推进一帧 (20 FPS 极速流水)
         _last_chart_flow_time = now;
         flowChart();
     }
 
     static unsigned long last_clock_update = 0;
-    if (now - last_clock_update >= 500) { // 每 500ms 刷新时钟
+    if (now - last_clock_update >= 200) { // 每 200ms 刷新时钟
         last_clock_update = now;
         updateClock();
     }
